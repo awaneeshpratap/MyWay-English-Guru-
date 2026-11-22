@@ -134,10 +134,35 @@ last_error = None
 for model in models:
     for attempt in range(2):
         try:
+            
+import time
+
+models = [
+    "gemini-3.8-flash",
+    "gemini-2.5-flash"
+]
+
+response = None
+last_error = None
+
+for model in models:
+    for attempt in range(2):
+        try:
             response = client.models.generate_content(
                 model=model,
                 contents=prompt
             )
+            break
+        except Exception as e:
+            last_error = e
+            time.sleep(3)
+
+    if response is not None:
+        break
+
+if response is None:
+    raise last_error
+
             break
         except Exception as e:
             last_error = e
