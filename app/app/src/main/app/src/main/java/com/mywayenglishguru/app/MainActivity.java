@@ -1,3 +1,4 @@
+// MyWay English Guru Android App
 package com.mywayenglishguru.app;
 
 import android.app.Activity;
