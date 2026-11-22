@@ -1,7 +1,9 @@
 
 import streamlit as st
 import os
+import time
 from google import genai
+from google.genai import errors, types
 
 # App Configuration
 st.set_page_config(
@@ -95,10 +97,7 @@ if st.button("🚀 Ask My AI Teacher"):
         if not api_key:
             st.error("Gemini API Key अभी Configure नहीं हुई है.")
         else:
-            try:
-                client = genai.Client(api_key=api_key)
-
-                prompt = f"""
+            prompt = f"""
 You are MyWay English Guru, an expert English teacher.
 
 Student Level: {level}
@@ -119,19 +118,49 @@ Student Question:
 {question}
 """
 
-                
-                with st.spinner("AI Teacher is preparing your lesson..."):
-                    response = client.models.generate_content(
-                        model="gemini-3.8-flash",
-                        contents=prompt
-                    )
+            client = genai.Client(api_key=api_key)
 
-                st.markdown("### 📖 Your AI Teacher's Answer")
-                st.markdown(response.text)
+            with st.spinner("AI Teacher is preparing your lesson..."):
+                response = None
 
+                for attempt in range(3):
+                    try:
+                        response = client.models.generate_content(
+                            model="gemini-3.8-flash",
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                max_output_tokens=700
+                            )
+                        )
+                        break
 
-            except Exception as e:
-                st.error(f"Something went wrong: {e}")
+                    except errors.APIError as e:
+                        if e.code in (429, 500, 503, 504):
+                            if attempt < 2:
+                                st.warning(
+                                    f"Server busy. Retrying... "
+                                    f"Attempt {attempt + 2} of 3"
+                                )
+                                time.sleep(2 * (attempt + 1))
+                            else:
+                                st.error(
+                                    "Gemini server is still busy. "
+                                    "Please try again after some time."
+                                )
+                        else:
+                            st.error(f"Gemini API Error: {e}")
+                            break
+
+                    except Exception as e:
+                        st.error(f"Something went wrong: {e}")
+                        break
+
+            if response is not None:
+                if response.text:
+                    st.markdown("### 📖 Your AI Teacher's Answer")
+                    st.markdown(response.text)
+                else:
+                    st.warning("AI ने कोई टेक्स्ट जवाब नहीं दिया।")
 
     else:
         st.warning("पहले अपना सवाल लिखिए।")
