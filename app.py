@@ -166,7 +166,7 @@ Student Question:
                             model="gemini-3.1-flash-lite",
                             contents=prompt,
                             config=types.GenerateContentConfig(
-                                max_output_tokens=700
+                                max_output_tokens=3000
                             )
                         )
                         break
