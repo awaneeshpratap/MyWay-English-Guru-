@@ -1,9 +1,8 @@
-
 import streamlit as st
 import os
 import time
 from google import genai
-from google.genai import errors, types
+from google.genai import types
 
 # ==========================================
 # APP CONFIGURATION
@@ -124,7 +123,6 @@ if st.button("🚀 Ask My AI Teacher"):
         )
 
         if not api_key:
-
             st.error("Gemini API Key अभी Configure नहीं हुई है.")
 
         else:
@@ -767,4 +765,4 @@ END OF FINAL GRAMMAR ACCURACY SYSTEM
                     try:
                         response = client.models.generate_content(
                             model="gemini-3.1-flash-lite",
-  
+           
